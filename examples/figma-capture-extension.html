@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example — Figma Capture Extension</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/djalmajr/z-proto@main/src/z-proto.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+        colors: {
+          fg: { dark: '#1e1e1e', card: '#2c2c2c', border: '#3d3d3d', muted: '#999', hint: '#666',
+                purple: '#7b61ff', 'purple-hover': '#6d4fe8', success: '#0fa958', warning: '#ffbe0b', error: '#f24822' },
+        },
+      }
+    }
+  }
+</script>
+</head>
+<body class="font-sans antialiased">
+
+<z-proto window-width="640" window-height="400">
+  <z-proto-header>
+    <div class="flex gap-1">
+      <button onclick="showScene('idle')" data-scene-tab="idle" class="px-2 py-0.5 rounded text-[11px] bg-[hsl(240_5.9%_10%)] text-white">Idle</button>
+      <button onclick="showScene('first-use')" data-scene-tab="first-use" class="px-2 py-0.5 rounded text-[11px] text-[hsl(240_3.8%_46.1%)]">1st use</button>
+      <button onclick="showScene('active')" data-scene-tab="active" class="px-2 py-0.5 rounded text-[11px] text-[hsl(240_3.8%_46.1%)]">Hash active</button>
+      <button onclick="showScene('settings')" data-scene-tab="settings" class="px-2 py-0.5 rounded text-[11px] text-[hsl(240_3.8%_46.1%)]">Settings</button>
+    </div>
+  </z-proto-header>
+  <z-proto-body title="Figma Capture — Chrome Extension">
+    <div class="flex flex-col min-h-full flex-1 bg-fg-dark text-white text-[13px]">
+
+      <!-- Shared Header -->
+      <div class="flex items-center gap-2.5 px-4 py-3 border-b border-fg-border">
+        <button data-show="settings" class="text-fg-muted hover:text-white hidden" onclick="showScene(lastScene || 'idle')">
+          <iconify-icon icon="lucide:arrow-left" width="16"></iconify-icon>
+        </button>
+        <iconify-icon icon="lucide:figma" width="20" data-show="idle first-use active"></iconify-icon>
+        <span class="text-sm font-semibold tracking-tight" data-show="idle first-use active">Figma Capture</span>
+        <span class="text-sm font-semibold tracking-tight hidden" data-show="settings">Settings</span>
+        <div class="flex-1"></div>
+        <button class="text-fg-muted hover:text-white" data-show="idle first-use active" onclick="showScene('settings')">
+          <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
+        </button>
+      </div>
+
+      <!-- ===== SCENE: Idle ===== -->
+      <div data-scene="idle" class="flex flex-col flex-1 p-4 gap-4">
+        <div class="flex items-center gap-2 px-3 py-2 bg-fg-card rounded-lg border border-fg-border">
+          <div class="w-2 h-2 rounded-full bg-fg-success"></div>
+          <span class="text-xs text-fg-muted">Ready to capture</span>
+        </div>
+        <div class="flex flex-col gap-2 px-3 py-3 bg-fg-card rounded-lg border border-fg-border">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-fg-muted">Figma File</span>
+            <span class="text-xs text-white">Platform</span>
+          </div>
+        </div>
+        <div class="flex-1"></div>
+        <button onclick="showScene('active')" class="flex items-center justify-center gap-2 w-full py-2.5 bg-fg-purple hover:bg-fg-purple-hover text-white rounded-lg text-[13px] font-medium transition-colors">
+          <iconify-icon icon="lucide:figma" width="16"></iconify-icon>
+          Copy to Figma
+        </button>
+      </div>
+
+      <!-- ===== SCENE: First use ===== -->
+      <div data-scene="first-use" class="flex flex-col flex-1 p-4 gap-4 hidden">
+        <div class="flex flex-col items-center gap-3 py-6">
+          <div class="w-12 h-12 rounded-xl bg-fg-purple/10 flex items-center justify-center">
+            <iconify-icon icon="lucide:figma" width="24"></iconify-icon>
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-medium text-white">Add a Figma File</p>
+            <p class="text-[11px] text-fg-muted mt-1 leading-relaxed px-4">
+              Enter a Figma file key.<br/>Then just click the extension icon to capture.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-medium text-fg-muted uppercase tracking-wider">Label</label>
+          <input type="text" placeholder="Ex: Platform" class="px-3 py-1.5 bg-fg-card border border-fg-border rounded-md text-[13px] text-white placeholder:text-fg-hint outline-none focus:border-fg-purple" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-medium text-fg-muted uppercase tracking-wider">Figma File Key</label>
+          <input type="text" placeholder="Ex: aBcDeFgHiJkLmNoPqRsT" class="px-3 py-1.5 bg-fg-card border border-fg-border rounded-md text-xs text-white font-mono placeholder:text-fg-hint outline-none focus:border-fg-purple" />
+        </div>
+        <div class="flex-1"></div>
+        <button onclick="showScene('idle')" class="flex items-center justify-center gap-2 w-full py-2.5 bg-fg-purple hover:bg-fg-purple-hover text-white rounded-lg text-[13px] font-medium transition-colors">
+          <iconify-icon icon="lucide:save" width="16"></iconify-icon>
+          Save and capture
+        </button>
+      </div>
+
+      <!-- ===== SCENE: Hash active ===== -->
+      <div data-scene="active" class="flex flex-col flex-1 p-4 gap-4 hidden">
+        <div class="flex items-center gap-2 px-3 py-2 bg-fg-card rounded-lg border border-fg-warning/30">
+          <div class="w-2 h-2 rounded-full bg-fg-warning animate-pulse"></div>
+          <span class="text-xs text-fg-warning">Capture hash active</span>
+        </div>
+        <div class="flex flex-col gap-2 px-3 py-3 bg-fg-card rounded-lg border border-fg-border">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-fg-muted">Figma File</span>
+            <span class="text-xs text-white">Platform</span>
+          </div>
+        </div>
+        <div class="py-2 px-3 bg-fg-card/50 rounded-md border border-fg-border/50">
+          <span class="text-[10px] text-fg-muted leading-relaxed">
+            The <b class="text-gray-400 font-medium">#hash</b> is still in the URL. Click below to remove it and return to normal.
+          </span>
+        </div>
+        <div class="flex-1"></div>
+        <div class="flex flex-col gap-2">
+          <button class="flex items-center justify-center gap-2 w-full py-2.5 bg-fg-purple hover:bg-fg-purple-hover text-white rounded-lg text-[13px] font-medium transition-colors">
+            <iconify-icon icon="lucide:refresh-cw" width="16"></iconify-icon>
+            Capture again
+          </button>
+          <button onclick="showScene('idle')" class="flex items-center justify-center gap-2 w-full py-2 text-fg-muted hover:text-white rounded-lg text-xs transition-colors">
+            <iconify-icon icon="lucide:x" width="14"></iconify-icon>
+            Clear hash and reload
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== SCENE: Settings ===== -->
+      <div data-scene="settings" class="flex flex-col flex-1 p-4 gap-4 overflow-auto hidden">
+        <div>
+          <div class="text-[11px] font-medium text-fg-muted uppercase tracking-wider mb-2">Figma Files</div>
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2.5 px-3 py-2.5 bg-fg-card rounded-lg border border-fg-purple/30 cursor-pointer">
+              <div class="w-2 h-2 rounded-full bg-fg-purple shrink-0"></div>
+              <span class="text-[13px] text-white flex-1">Platform</span>
+              <span class="text-[11px] text-fg-muted font-mono">YHo2Hz...n0</span>
+              <button class="text-fg-hint hover:text-fg-error shrink-0 p-1">
+                <iconify-icon icon="lucide:trash-2" width="12"></iconify-icon>
+              </button>
+            </div>
+            <div class="flex items-center gap-2.5 px-3 py-2.5 bg-fg-card rounded-lg border border-fg-border cursor-pointer">
+              <div class="w-2 h-2 rounded-full bg-fg-border shrink-0"></div>
+              <span class="text-[13px] text-white flex-1">Application</span>
+              <span class="text-[11px] text-fg-muted font-mono">HIybrA...0t</span>
+              <button class="text-fg-hint hover:text-fg-error shrink-0 p-1">
+                <iconify-icon icon="lucide:trash-2" width="12"></iconify-icon>
+              </button>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <input type="text" placeholder="Label" class="w-22 shrink-0 px-2.5 py-1.5 bg-fg-card border border-fg-border rounded-md text-[13px] text-white placeholder:text-fg-hint outline-none focus:border-fg-purple" />
+            <input type="text" placeholder="File key" class="flex-1 min-w-0 px-2.5 py-1.5 bg-fg-card border border-fg-border rounded-md text-xs text-white font-mono placeholder:text-fg-hint outline-none focus:border-fg-purple" />
+            <button class="px-2.5 py-1.5 bg-fg-purple hover:bg-fg-purple-hover rounded-md text-white shrink-0">
+              <iconify-icon icon="lucide:plus" width="14"></iconify-icon>
+            </button>
+          </div>
+          <p class="text-[11px] text-fg-hint mt-2 leading-relaxed">Click a key to activate it. The active key is used when clicking the icon.</p>
+        </div>
+      </div>
+
+    </div>
+  </z-proto-body>
+</z-proto>
+
+<script>
+let lastScene = 'idle';
+function showScene(id) {
+  lastScene = document.querySelector('[data-scene]:not(.hidden)')?.dataset.scene || lastScene;
+  document.querySelectorAll('[data-scene]').forEach(el => {
+    el.classList.toggle('hidden', el.dataset.scene !== id);
+  });
+  document.querySelectorAll('[data-show]').forEach(el => {
+    const scenes = el.dataset.show.split(' ');
+    el.classList.toggle('hidden', !scenes.includes(id));
+  });
+  document.querySelectorAll('[data-scene-tab]').forEach(el => {
+    const active = el.dataset.sceneTab === id;
+    el.className = active
+      ? 'px-2 py-0.5 rounded text-[11px] bg-[hsl(240_5.9%_10%)] text-white'
+      : 'px-2 py-0.5 rounded text-[11px] text-[hsl(240_3.8%_46.1%)]';
+  });
+}
+</script>
+
+</body>
+</html>
