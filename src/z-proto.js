@@ -360,7 +360,7 @@ class ZProto extends HTMLElement {
   // --- Figma ---
 
   #updateFigmaLink() {
-    const key = this.getAttribute("figma-key") || "";
+    const key = this.getAttribute("figma-key") || new URLSearchParams(location.search).get("FIGMA_KEY") || "";
     const btn = this.#refs.figma;
     if (key) {
       btn.hidden = false;
