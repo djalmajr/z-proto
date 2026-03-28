@@ -1,0 +1,13 @@
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --color-fg-dark: #1e1e1e;
+  --color-fg-card: #2c2c2c;
+  --color-fg-border: #3d3d3d;
+  --color-fg-muted: #999;
+  --color-fg-hint: #666;
+  --color-fg-purple: #7b61ff;
+  --color-fg-purple-hover: #6d4fe8;
+  --color-fg-success: #0fa958;
+  --color-fg-warning: #ffbe0b;
+  --color-fg-error: #f24822;
+}

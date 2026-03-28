@@ -1,0 +1,7 @@
+{
+  "name": "z-proto",
+  "private": true,
+  "scripts": {
+    "serve": "npx serve . -p 8080"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/examples/todo-app/**", "destination": "/examples/todo-app/index.html" }
+  ]
+}

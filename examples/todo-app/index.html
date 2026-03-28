@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <base href="/examples/todo-app/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Example — Todo App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://esm.run/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
+  <script type="module" src="../../src/z-proto.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "htm/preact": "https://esm.sh/htm@3/preact?external=preact",
+        "preact-iso": "https://esm.sh/preact-iso@2?external=preact",
+        "preact": "https://esm.sh/preact@10",
+        "preact/": "https://esm.sh/preact@10/"
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', sans-serif;
+      --color-primary: oklch(0.585 0.233 277);
+      --color-primary-fg: #fff;
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased">
+
+  <z-proto>
+    <z-proto-header></z-proto-header>
+    <z-proto-body title="Todo App — Proto" width="420" height="600">
+      <div id="app" style="display:flex;flex:1;overflow:hidden"></div>
+    </z-proto-body>
+  </z-proto>
+
+  <script type="module" src="./index.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Example — Figma Capture Extension</title>
+  <base href="/examples/figma-capture/">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://esm.run/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
+  <script type="module" src="../../src/z-proto.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "htm/preact": "https://esm.sh/htm@3/preact?external=preact",
+        "preact": "https://esm.sh/preact@10",
+        "preact/": "https://esm.sh/preact@10/"
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', sans-serif;
+      --color-fg-dark: #1e1e1e;
+      --color-fg-card: #2c2c2c;
+      --color-fg-border: #3d3d3d;
+      --color-fg-muted: #999;
+      --color-fg-hint: #666;
+      --color-fg-purple: #7b61ff;
+      --color-fg-purple-hover: #6d4fe8;
+      --color-fg-success: #0fa958;
+      --color-fg-warning: #ffbe0b;
+      --color-fg-error: #f24822;
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased">
+
+  <z-proto>
+    <z-proto-header>
+      <div id="scene-nav"></div>
+    </z-proto-header>
+    <z-proto-body title="Figma Capture — Chrome Extension" width="640" height="400">
+      <div id="app" style="display:flex;flex:1;overflow:hidden"></div>
+    </z-proto-body>
+  </z-proto>
+
+  <script type="module" src="./index.js"></script>
+
+</body>
+
+</html>

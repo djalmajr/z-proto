@@ -119,9 +119,6 @@ function createCameraSvg() {
 class ZProto extends HTMLElement {
   static observedAttributes = [
     "figma-key",
-    "window-title",
-    "window-width",
-    "window-height",
     "zoom",
   ];
 
@@ -131,6 +128,8 @@ class ZProto extends HTMLElement {
   #state = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
+    minWidth: MIN_WIDTH,
+    minHeight: MIN_HEIGHT,
     zoom: 1,
     activePresetId: null,
     mode: "manual",
@@ -154,10 +153,14 @@ class ZProto extends HTMLElement {
     const contentEl = this.querySelector("z-proto-body");
 
     // Read initial attributes from z-proto-body
-    const hasWidth = contentEl?.getAttribute("width") || this.getAttribute("window-width");
-    const hasHeight = contentEl?.getAttribute("height") || this.getAttribute("window-height");
+    const hasWidth = contentEl?.getAttribute("width");
+    const hasHeight = contentEl?.getAttribute("height");
+    const hasMinWidth = contentEl?.getAttribute("min-width");
+    const hasMinHeight = contentEl?.getAttribute("min-height");
     this.#state.width = Number(hasWidth) || DEFAULT_WIDTH;
     this.#state.height = Number(hasHeight) || DEFAULT_HEIGHT;
+    this.#state.minWidth = Number(hasMinWidth) || MIN_WIDTH;
+    this.#state.minHeight = Number(hasMinHeight) || MIN_HEIGHT;
     this.#state.zoom = Number(this.getAttribute("zoom")) || 1;
 
     // Default to desktop mode if no dimensions specified
@@ -165,7 +168,7 @@ class ZProto extends HTMLElement {
       this.#state.activePresetId = "desktop";
     }
 
-    // Title from z-proto-body or z-proto
+    // Title from z-proto-body
     if (contentEl?.getAttribute("title")) {
       this.setAttribute("window-title", contentEl.getAttribute("title"));
     }
@@ -217,19 +220,6 @@ class ZProto extends HTMLElement {
     if (!this.#refs.title) return; // not yet rendered
 
     switch (name) {
-      case "window-title":
-        this.#updateTitle();
-        break;
-      case "window-width": {
-        const w = Number(newValue) || DEFAULT_WIDTH;
-        this.#applyDimensions(w, this.#state.height, "manual");
-        break;
-      }
-      case "window-height": {
-        const h = Number(newValue) || DEFAULT_HEIGHT;
-        this.#applyDimensions(this.#state.width, h, "manual");
-        break;
-      }
       case "zoom":
         this.#setZoom(Number(newValue) || 1);
         break;
@@ -375,35 +365,53 @@ class ZProto extends HTMLElement {
 
   async #captureScreenshot() {
     const btn = this.#refs.screenshot;
-    let stream;
 
     try {
       btn.classList.add("zp-figma-active");
 
-      stream = await navigator.mediaDevices.getDisplayMedia({
+      const stream = await navigator.mediaDevices.getDisplayMedia({
         preferCurrentTab: true,
-        video: { displaySurface: "browser" },
+        video: { displaySurface: "browser", width: { ideal: 4096 }, height: { ideal: 4096 } },
       });
 
-      const track = stream.getVideoTracks()[0];
-      const imageCapture = new ImageCapture(track);
-      const bitmap = await imageCapture.grabFrame();
-      track.stop();
+      // Render stream to video to get actual capture dimensions
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      video.muted = true;
+      await video.play();
 
-      // Crop to content area
+      // Wait for video to have real dimensions
+      await new Promise((r) => {
+        if (video.videoWidth > 0) return r();
+        video.onloadedmetadata = r;
+      });
+
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+
+      // Calculate scale: capture resolution vs CSS viewport
+      const scale = vw / window.innerWidth;
+
+      // Crop to content area using actual capture scale
       const rect = this.#refs.content.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const cx = Math.round(rect.x * dpr);
-      const cy = Math.round(rect.y * dpr);
-      const cw = Math.round(rect.width * dpr);
-      const ch = Math.round(rect.height * dpr);
+      const cx = Math.round(rect.x * scale);
+      const cy = Math.round(rect.y * scale);
+      const cw = Math.round(rect.width * scale);
+      const ch = Math.round(rect.height * scale);
 
       const canvas = new OffscreenCanvas(cw, ch);
       const ctx = canvas.getContext("2d");
-      ctx.drawImage(bitmap, cx, cy, cw, ch, 0, 0, cw, ch);
-      bitmap.close();
+      ctx.drawImage(video, cx, cy, cw, ch, 0, 0, cw, ch);
+
+      // Stop stream — removes yellow border
+      stream.getTracks().forEach((t) => { t.stop(); });
+      video.srcObject = null;
 
       const blob = await canvas.convertToBlob({ type: "image/png" });
+      if (!document.hasFocus()) {
+        window.focus();
+        await new Promise((r) => window.addEventListener("focus", r, { once: true }));
+      }
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
 
       btn.title = "Copied!";
@@ -411,8 +419,8 @@ class ZProto extends HTMLElement {
         btn.title = "Copy screenshot";
         btn.classList.remove("zp-figma-active");
       }, 1500);
-    } catch {
-      stream?.getTracks().forEach((t) => t.stop());
+    } catch (e) {
+      console.error("z-proto screenshot:", e);
       btn.classList.remove("zp-figma-active");
     }
   }
@@ -458,16 +466,16 @@ class ZProto extends HTMLElement {
   #getMaxDimensions() {
     const padding = 64;
     return {
-      width: Math.max(MIN_WIDTH, window.innerWidth - padding * 2),
-      height: Math.max(MIN_HEIGHT, window.innerHeight - 120),
+      width: Math.max(this.#state.minWidth, window.innerWidth - padding * 2),
+      height: Math.max(this.#state.minHeight, window.innerHeight - 120),
     };
   }
 
   #clampDimensions(width, height) {
     const max = this.#getMaxDimensions();
     return {
-      width: Math.min(Math.max(Math.round(width), MIN_WIDTH), max.width),
-      height: Math.min(Math.max(Math.round(height), MIN_HEIGHT), max.height),
+      width: Math.min(Math.max(Math.round(width), this.#state.minWidth), max.width),
+      height: Math.min(Math.max(Math.round(height), this.#state.minHeight), max.height),
     };
   }
 
