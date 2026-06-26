@@ -1,6 +1,12 @@
 // z-proto — prototyping shell web component (Light DOM)
 
-import sheet from "./z-proto.css" with { type: "css" };
+// CSS module scripts via `import ... with { type: "css" }` aren't supported in
+// every engine (notably WKWebView < 17.2, used by Tauri/WebView previews), and
+// can't be transpiled when this module is loaded from a CDN. Build the
+// constructable stylesheet at runtime from the sibling CSS file instead — works
+// in any engine, whether loaded from a CDN or served locally.
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(await fetch(new URL("./z-proto.css", import.meta.url)).then((r) => r.text()));
 
 const PRESETS = [
   { id: "desktop", label: "Desktop" },
